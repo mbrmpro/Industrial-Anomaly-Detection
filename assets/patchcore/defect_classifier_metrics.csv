@@ -1,0 +1,15 @@
+category,macro_f1_mean,macro_f1_std
+bottle,0.92,0.08
+cable,0.79,0.03
+capsule,0.75,0.04
+carpet,0.92,0.03
+grid,0.79,0.12
+hazelnut,0.9,0.08
+leather,0.93,0.07
+metal_nut,0.94,0.03
+pill,0.82,0.05
+screw,0.84,0.06
+tile,1.0,0.0
+transistor,0.85,0.11
+wood,0.72,0.13
+zipper,0.86,0.06

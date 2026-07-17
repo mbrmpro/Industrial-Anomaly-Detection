@@ -1,0 +1,161 @@
+{
+  "0": {
+    "precision": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "f1-score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "support": {
+      "mean": 3.4,
+      "std": 0.4898979485566356,
+      "n": 5
+    }
+  },
+  "1": {
+    "precision": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "f1-score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "support": {
+      "mean": 3.6,
+      "std": 0.4898979485566356,
+      "n": 5
+    }
+  },
+  "2": {
+    "precision": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "f1-score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "support": {
+      "mean": 3.2,
+      "std": 0.39999999999999997,
+      "n": 5
+    }
+  },
+  "3": {
+    "precision": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "f1-score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "support": {
+      "mean": 3.6,
+      "std": 0.4898979485566356,
+      "n": 5
+    }
+  },
+  "4": {
+    "precision": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "f1-score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "support": {
+      "mean": 3.0,
+      "std": 0.0,
+      "n": 5
+    }
+  },
+  "accuracy": {
+    "mean": 1.0,
+    "std": 0.0,
+    "n": 5
+  },
+  "macro avg": {
+    "precision": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "f1-score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "support": {
+      "mean": 16.8,
+      "std": 0.4,
+      "n": 5
+    }
+  },
+  "weighted avg": {
+    "precision": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "f1-score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 5
+    },
+    "support": {
+      "mean": 16.8,
+      "std": 0.4,
+      "n": 5
+    }
+  }
+}

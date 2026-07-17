@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.ipynb_checkpoints/
+
+# Virtual environments
+streamlit_env/
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Local caches
+.cache/
+.huggingface/
+*.log
+
+# MVTec datasets
+Dataset/
+Dataset_preprocessed/
+Dataset_augmented/
+data/
+datasets/
+
+# Downloaded PatchCore / OpenVINO models
+patchcore_*/
+models/patchcore_models/
+models/**/openvino/
+**/weights/openvino/
+*.bin
+*.onnx
+*.pt
+*.pth
+*.ckpt
+
+# Temporary files
+tmp/
+temp/
+*.zip
+*.tar
+*.tar.gz
+
+# Secrets
+.streamlit/secrets.toml
+.env
+
+# OpenVINO
+openvino_cache/
+**/openvino_cache/
+
+# HuggingFace
+.huggingface/
+.cache/huggingface/
+
+# Torch
+.cache/torch/
+torch_cache/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Streamlit
+.streamlit/secrets.toml
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+openvino_cache/
+**/openvino_cache/

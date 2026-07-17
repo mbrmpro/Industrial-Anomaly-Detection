@@ -1,0 +1,55 @@
+/* =======================================================
+   Industrial Anomaly Detection
+   Custom Theme
+======================================================= */
+
+/* Main background */
+.stApp {
+    background-color: #F8FAFC;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #0F172A;
+}
+
+/* Sidebar text */
+section[data-testid="stSidebar"] * {
+    color: white;
+}
+
+/* Headers */
+h1 {
+    color: #0F172A;
+    font-weight: 700;
+}
+
+h2 {
+    color: #2563EB;
+}
+
+h3 {
+    color: #334155;
+}
+
+/* Metric cards */
+.metric-card {
+
+    background-color: white;
+
+    padding: 20px;
+
+    border-radius: 12px;
+
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
+
+    margin-bottom:20px;
+}
+
+/* Images */
+
+img {
+
+    border-radius:12px;
+
+}
