@@ -6,6 +6,7 @@ __pycache__/
 
 # Virtual environments
 streamlit_env/
+deploy_test_env/
 venv/
 .venv/
 env/

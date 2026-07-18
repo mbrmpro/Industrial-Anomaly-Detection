@@ -1,233 +1,190 @@
+"""Backward-compatible API for the slim deployment dataset."""
+
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Any
 
-from utils.config import APP_ROOT, DATASET_PATH
+import pandas as pd
+import streamlit as st
 
+from utils.config import DATASET_ROOT
+from utils.data_loader import load_dataset_statistics
 
-IMAGE_SUFFIXES = {
-    ".png",
-    ".jpg",
-    ".jpeg",
-}
-
-CLOUD_SAMPLE_ROOT = (
-    APP_ROOT
-    / "assets"
-    / "dataset_samples"
-)
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
 
 
-def _image_files(
-    directory: Path,
-) -> list[Path]:
-    """Return supported image files from one directory."""
+def _safe_name(value: str, label: str) -> str:
+    name = str(value).strip()
+    if not name:
+        raise ValueError(f"{label} must not be empty.")
+    if Path(name).name != name:
+        raise ValueError(f"Invalid {label.lower()}: {value!r}")
+    return name
 
-    if not directory.exists():
+
+def _image_paths(folder: Path) -> list[Path]:
+    if not folder.is_dir():
         return []
-
     return sorted(
         path
-        for path in directory.iterdir()
-        if (
-            path.is_file()
-            and path.suffix.lower() in IMAGE_SUFFIXES
-        )
+        for path in folder.iterdir()
+        if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS
     )
 
 
+def _int_value(row: dict[str, Any], *keys: str, default: int = 0) -> int:
+    for key in keys:
+        if key not in row:
+            continue
+        value = row[key]
+        if pd.isna(value):
+            continue
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            continue
+    return int(default)
+
+
+@st.cache_data(show_spinner=False)
 def get_categories() -> list[str]:
-    """
-    Return local dataset categories when available.
+    """Return categories present in assets/dataset."""
+    if not DATASET_ROOT.is_dir():
+        return []
+    return sorted(path.name for path in DATASET_ROOT.iterdir() if path.is_dir())
 
-    On Streamlit Cloud, fall back to the prepared sample folders.
-    """
 
-    local_root = Path(DATASET_PATH)
+@st.cache_data(show_spinner=False)
+def get_statistics(category: str) -> dict[str, Any]:
+    """Return CSV statistics with stable compatibility keys."""
+    category_name = _safe_name(category, "Category")
+    dataframe = load_dataset_statistics()
 
-    if local_root.exists():
+    if "category" not in dataframe.columns:
+        raise KeyError("dataset_statistics.csv must contain a 'category' column.")
 
-        local_categories = sorted(
-            folder.name
-            for folder in local_root.iterdir()
-            if folder.is_dir()
+    rows = dataframe.loc[
+        dataframe["category"].astype(str).str.strip() == category_name
+    ]
+    if rows.empty:
+        raise KeyError(
+            f"Category is not present in dataset statistics: {category_name}"
         )
 
-        if local_categories:
-            return local_categories
-
-    if CLOUD_SAMPLE_ROOT.exists():
-
-        cloud_categories = sorted(
-            folder.name
-            for folder in CLOUD_SAMPLE_ROOT.iterdir()
-            if folder.is_dir()
-        )
-
-        if cloud_categories:
-            return cloud_categories
-
-    return []
-
-
-def get_train_images(
-    category: str,
-) -> list[Path]:
-    """Return local normal training images when available."""
-
-    train_path = (
-        Path(DATASET_PATH)
-        / category
-        / "train"
-        / "good"
+    raw = rows.iloc[0].to_dict()
+    train = _int_value(raw, "train", "train_images", "training_images")
+    test_good = _int_value(
+        raw, "test_good", "test_good_images", "good_test_images"
     )
-
-    return _image_files(
-        train_path
+    test_defect = _int_value(
+        raw,
+        "test_defect",
+        "test_defect_images",
+        "defect_test_images",
+        "test_defective",
     )
-
-
-def get_test_defects(
-    category: str,
-) -> list[str]:
-    """
-    Return local test classes or cloud sample classes.
-    """
-
-    local_test_root = (
-        Path(DATASET_PATH)
-        / category
-        / "test"
+    test = _int_value(
+        raw, "test", "test_images", default=test_good + test_defect
     )
+    if test == 0:
+        test = test_good + test_defect
+    total = _int_value(raw, "total", "total_images", default=train + test)
+    if total == 0:
+        total = train + test
 
-    if local_test_root.exists():
-
-        local_defects = sorted(
-            folder.name
-            for folder in local_test_root.iterdir()
-            if folder.is_dir()
-        )
-
-        if local_defects:
-            return local_defects
-
-    cloud_category_root = (
-        CLOUD_SAMPLE_ROOT
-        / category
-    )
-
-    if cloud_category_root.exists():
-
-        cloud_defects = sorted(
-            folder.name
-            for folder in cloud_category_root.iterdir()
-            if folder.is_dir()
-        )
-
-        if cloud_defects:
-            return cloud_defects
-
-    return []
-
-
-def get_test_images(
-    category: str,
-    defect_type: str,
-) -> list[Path]:
-    """
-    Return local test images when available.
-
-    On Streamlit Cloud, return prepared sample images.
-    """
-
-    local_test_path = (
-        Path(DATASET_PATH)
-        / category
-        / "test"
-        / defect_type
-    )
-
-    local_images = _image_files(
-        local_test_path
-    )
-
-    if local_images:
-        return local_images
-
-    cloud_sample_path = (
-        CLOUD_SAMPLE_ROOT
-        / category
-        / defect_type
-    )
-
-    return _image_files(
-        cloud_sample_path
-    )
-
-
-def count_images(
-    category: str,
-) -> dict[str, int]:
-    """
-    Count local dataset images.
-
-    In cloud mode, use available sample-image counts.
-    """
-
-    category_root = (
-        Path(DATASET_PATH)
-        / category
-    )
-
-    if category_root.exists():
-
-        train_count = len(
-            list(
-                (
-                    category_root
-                    / "train"
-                ).rglob("*.png")
-            )
-        )
-
-        test_count = len(
-            list(
-                (
-                    category_root
-                    / "test"
-                ).rglob("*.png")
-            )
-        )
-
-        return {
-            "train": train_count,
-            "test": test_count,
-            "total": (
-                train_count
-                + test_count
-            ),
+    result = dict(raw)
+    result.update(
+        {
+            "train": train,
+            "test_good": test_good,
+            "test_defect": test_defect,
+            "test": test,
+            "total": total,
         }
-
-    cloud_category_root = (
-        CLOUD_SAMPLE_ROOT
-        / category
     )
 
-    cloud_test_count = 0
+    defect_names = result.get("defect_type_names")
+    if isinstance(defect_names, str):
+        result["defect_type_names"] = [
+            item.strip() for item in defect_names.split("|") if item.strip()
+        ]
+    elif defect_names is not None and pd.isna(defect_names):
+        result["defect_type_names"] = []
 
-    if cloud_category_root.exists():
+    return result
 
-        cloud_test_count = sum(
-            len(
-                _image_files(
-                    defect_folder
-                )
-            )
-            for defect_folder
-            in cloud_category_root.iterdir()
-            if defect_folder.is_dir()
-        )
 
+@st.cache_data(show_spinner=False)
+def count_images(category: str) -> dict[str, int]:
+    """Read precomputed counts from CSV; no filesystem counting."""
+    stats = get_statistics(category)
     return {
-        "train": 0,
-        "test": cloud_test_count,
-        "total": cloud_test_count,
+        "train": int(stats["train"]),
+        "test_good": int(stats["test_good"]),
+        "test_defect": int(stats["test_defect"]),
+        "test": int(stats["test"]),
+        "total": int(stats["total"]),
     }
+
+
+@st.cache_data(show_spinner=False)
+def get_train_images(category: str) -> list[Path]:
+    category_name = _safe_name(category, "Category")
+    return _image_paths(DATASET_ROOT / category_name / "train" / "good")
+
+
+@st.cache_data(show_spinner=False)
+def get_test_defects(category: str) -> list[str]:
+    """Return test classes, with 'good' first when present."""
+    category_name = _safe_name(category, "Category")
+    test_root = DATASET_ROOT / category_name / "test"
+    if not test_root.is_dir():
+        return []
+    classes = sorted(path.name for path in test_root.iterdir() if path.is_dir())
+    if "good" in classes:
+        return ["good"] + [name for name in classes if name != "good"]
+    return classes
+
+
+@st.cache_data(show_spinner=False)
+def get_defect_types(category: str) -> list[str]:
+    return [name for name in get_test_defects(category) if name != "good"]
+
+
+@st.cache_data(show_spinner=False)
+def get_defect_type_names(category: str) -> list[str]:
+    return get_defect_types(category)
+
+
+@st.cache_data(show_spinner=False)
+def get_test_images(category: str, defect: str) -> list[Path]:
+    category_name = _safe_name(category, "Category")
+    class_name = _safe_name(defect, "Class")
+    return _image_paths(DATASET_ROOT / category_name / "test" / class_name)
+
+
+@st.cache_data(show_spinner=False)
+def get_test_good_images(category: str) -> list[Path]:
+    return get_test_images(category, "good")
+
+
+@st.cache_data(show_spinner=False)
+def get_test_defect_images(category: str, defect_type: str) -> list[Path]:
+    return get_test_images(category, defect_type)
+
+
+@st.cache_data(show_spinner=False)
+def get_ground_truth_images(category: str, defect: str) -> list[Path]:
+    category_name = _safe_name(category, "Category")
+    class_name = _safe_name(defect, "Class")
+    if class_name == "good":
+        return []
+    return _image_paths(
+        DATASET_ROOT / category_name / "ground_truth" / class_name
+    )
+
+
+@st.cache_data(show_spinner=False)
+def get_ground_truth_masks(category: str, defect_type: str) -> list[Path]:
+    return get_ground_truth_images(category, defect_type)

@@ -595,14 +595,15 @@ def plot_defect_types_per_category(df):
 # DIAGRAM 6
 # Defect Severity (Ground Truth Masks)
 # ==========================================================
-def plot_defect_severity(
-    defect_statistics_path
-):
+def plot_defect_severity(defect_statistics_path):
     """
     Plot mean defect-area percentage per category.
 
     Bubble size represents the standard deviation of
     defect-area percentages.
+
+    If the required mask statistic is unavailable, return
+    an informative placeholder figure instead of crashing.
     """
 
     from pathlib import Path
@@ -611,25 +612,75 @@ def plot_defect_severity(
     import numpy as np
     import pandas as pd
 
-    statistics_path = Path(
-        defect_statistics_path
-    )
+    statistics_path = Path(defect_statistics_path)
 
     if not statistics_path.exists():
-
         raise FileNotFoundError(
-            f"Defect statistics not found: "
-            f"{statistics_path}"
+            f"Defect statistics not found: {statistics_path}"
         )
 
-    df = pd.read_csv(
-        statistics_path
-    )
+    df = pd.read_csv(statistics_path)
+
+    required_columns = {
+        "category",
+        "defect_area_percent",
+    }
+
+    missing_columns = required_columns.difference(df.columns)
+
+    if missing_columns:
+        fig, ax = plt.subplots(
+            figsize=(
+                FIGURE_WIDTH,
+                FIGURE_HEIGHT,
+            ),
+            dpi=FIGURE_DPI,
+        )
+
+        ax.text(
+            0.5,
+            0.58,
+            "Defect Severity unavailable",
+            ha="center",
+            va="center",
+            fontsize=14,
+            fontweight="bold",
+            transform=ax.transAxes,
+        )
+
+        ax.text(
+            0.5,
+            0.43,
+            (
+                "The deployment statistics file does not contain\n"
+                "ground-truth mask area percentages."
+            ),
+            ha="center",
+            va="center",
+            fontsize=10,
+            transform=ax.transAxes,
+        )
+
+        ax.text(
+            0.5,
+            0.28,
+            (
+                "Required column: defect_area_percent\n"
+                f"Available columns: {', '.join(df.columns)}"
+            ),
+            ha="center",
+            va="center",
+            fontsize=9,
+            transform=ax.transAxes,
+        )
+
+        ax.set_axis_off()
+        fig.tight_layout(pad=0.5)
+
+        return fig
 
     summary = (
-        df.groupby("category")[
-            "defect_area_percent"
-        ]
+        df.groupby("category")["defect_area_percent"]
         .agg(["mean", "std"])
         .fillna(0)
         .sort_values("mean")
@@ -641,17 +692,16 @@ def plot_defect_severity(
 
     bubble_sizes = np.maximum(
         std_values * 350,
-        60
+        60,
     )
 
     fig, ax = plt.subplots(
-    figsize=(
-        FIGURE_WIDTH,
-        FIGURE_HEIGHT,
-    ),
-    dpi=FIGURE_DPI,
+        figsize=(
+            FIGURE_WIDTH,
+            FIGURE_HEIGHT,
+        ),
+        dpi=FIGURE_DPI,
     )
-    
 
     scatter = ax.scatter(
         mean_values,
@@ -661,7 +711,7 @@ def plot_defect_severity(
         cmap="inferno",
         alpha=0.78,
         edgecolors="black",
-        linewidth=0.8
+        linewidth=0.8,
     )
 
     overall_mean = float(
@@ -673,72 +723,61 @@ def plot_defect_severity(
         color="#D32F2F",
         linestyle="--",
         linewidth=2,
-        label=(
-            f"Overall Mean "
-            f"({overall_mean:.2f}%)"
-        )
+        label=f"Overall Mean ({overall_mean:.2f}%)",
     )
 
-    for index, value in enumerate(
-        mean_values
-    ):
-
+    for index, value in enumerate(mean_values):
         ax.text(
             value + 0.20,
             index,
             f"{value:.2f}%",
             va="center",
             fontsize=9,
-            fontweight="bold"
+            fontweight="bold",
         )
 
     colorbar = fig.colorbar(
         scatter,
         ax=ax,
-        pad=0.02
+        pad=0.02,
     )
 
     colorbar.set_label(
         "Mean Defect Area (%)",
-        fontweight="bold"
+        fontweight="bold",
     )
 
     ax.set_title(
         "Defect Severity per Category",
         fontsize=12,
         fontweight="bold",
-        pad=15
+        pad=15,
     )
 
     ax.set_xlabel(
         "Mean Defect Area (%)",
-        fontweight="bold"
+        fontweight="bold",
     )
 
     ax.set_ylabel(
         "Category",
-        fontweight="bold"
+        fontweight="bold",
     )
 
     ax.grid(
         axis="x",
         linestyle="--",
-        alpha=0.3
+        alpha=0.3,
     )
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-    ax.legend(
-        frameon=False
-    )
+    ax.legend(frameon=False)
 
-    fig.tight_layout()
-    fig.tight_layout(
-    pad=0.5
-    )
-    return fig
+    fig.tight_layout(pad=0.5)
 # ==========================================================
+    return fig
 # DIAGRAM 7
 # Real Defect Area Distribution on Logarithmic Scale
 # ==========================================================

@@ -3,10 +3,11 @@ import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 os.environ["OMP_NUM_THREADS"] = "1"
 
-from PIL import Image
 import streamlit as st
 import numpy as np
 import torch
+
+from PIL import Image
 
 from components.kpi_cards import show_kpi_cards
 from components.page_header import show_page_header

@@ -1,0 +1,16 @@
+category,train,test_good,test_defect,test,total,defect_type_count,defect_type_names
+bottle,209,20,63,83,292,3,broken_large|broken_small|contamination
+cable,230,58,92,150,380,8,bent_wire|cable_swap|combined|cut_inner_insulation|cut_outer_insulation|missing_cable|missing_wire|poke_insulation
+capsule,219,23,109,132,351,5,crack|faulty_imprint|poke|scratch|squeeze
+carpet,280,28,89,117,397,5,color|cut|hole|metal_contamination|thread
+grid,264,21,57,78,342,5,bent|broken|glue|metal_contamination|thread
+hazelnut,391,40,70,110,501,4,crack|cut|hole|print
+leather,245,32,92,124,369,5,color|cut|fold|glue|poke
+metal_nut,220,22,93,115,335,4,bent|color|flip|scratch
+pill,267,26,141,167,434,7,color|combined|contamination|crack|faulty_imprint|pill_type|scratch
+screw,320,41,119,160,480,5,manipulated_front|scratch_head|scratch_neck|thread_side|thread_top
+tile,230,33,84,117,347,5,crack|glue_strip|gray_stroke|oil|rough
+toothbrush,60,12,30,42,102,1,defective
+transistor,213,60,40,100,313,4,bent_lead|cut_lead|damaged_case|misplaced
+wood,247,19,60,79,326,5,color|combined|hole|liquid|scratch
+zipper,240,32,119,151,391,7,broken_teeth|combined|fabric_border|fabric_interior|rough|split_teeth|squeezed_teeth

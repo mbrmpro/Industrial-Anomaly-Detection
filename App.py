@@ -155,8 +155,11 @@ with pipeline_tab:
     with workflow_col:
 
         st.markdown("#### End-to-End Inspection Workflow")
-
-        show_pipeline_diagram()
+        st.image(
+            "assets/eda/ad_pipeline_flow.svg",
+            use_container_width=True
+        )
+        #show_pipeline_diagram()
 
     with explanation_col:
 
