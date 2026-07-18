@@ -78,7 +78,7 @@ def _defect_names(row: pd.Series) -> list[str]:
 def _statistics_to_eda_frame(statistics: pd.DataFrame) -> pd.DataFrame:
     """Convert compact deployment statistics to Category/Class/Images rows."""
     if statistics.empty:
-        return pd.DataFrame(columns=["Category", "Class", "Images"])
+        return pd.DataFrame(columns=["Category", "Dataset", "Class", "Images"])
 
     category_column = next(
         (column for column in ("category", "Category") if column in statistics.columns),
@@ -112,8 +112,18 @@ def _statistics_to_eda_frame(statistics: pd.DataFrame) -> pd.DataFrame:
         records.append(
             {
                 "Category": category,
+                "Dataset": "train",
                 "Class": "good",
-                "Images": train + test_good,
+                "Images": train,
+            }
+        )
+
+        records.append(
+            {
+                "Category": category,
+                "Dataset": "test",
+                "Class": "good",
+                "Images": test_good,
             }
         )
 
@@ -127,6 +137,7 @@ def _statistics_to_eda_frame(statistics: pd.DataFrame) -> pd.DataFrame:
                 records.append(
                     {
                         "Category": category,
+                        "Dataset": "test",
                         "Class": name,
                         "Images": base_count + (1 if index < remainder else 0),
                     }
@@ -134,7 +145,7 @@ def _statistics_to_eda_frame(statistics: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame.from_records(
         records,
-        columns=["Category", "Class", "Images"],
+        columns=["Category", "Dataset", "Class", "Images"],
     )
 
 

@@ -49,10 +49,35 @@ def _int_value(row: dict[str, Any], *keys: str, default: int = 0) -> int:
 
 @st.cache_data(show_spinner=False)
 def get_categories() -> list[str]:
-    """Return categories present in assets/dataset."""
-    if not DATASET_ROOT.is_dir():
+    """Return filesystem categories or fall back to dataset statistics."""
+    if DATASET_ROOT.is_dir():
+        categories = sorted(
+            path.name for path in DATASET_ROOT.iterdir() if path.is_dir()
+        )
+        if categories:
+            return categories
+
+    dataframe = load_dataset_statistics()
+    category_column = next(
+        (
+            column
+            for column in ("category", "Category")
+            if column in dataframe.columns
+        ),
+        None,
+    )
+    if category_column is None:
         return []
-    return sorted(path.name for path in DATASET_ROOT.iterdir() if path.is_dir())
+
+    return sorted(
+        dataframe[category_column]
+        .dropna()
+        .astype(str)
+        .str.strip()
+        .loc[lambda values: values.ne("")]
+        .unique()
+        .tolist()
+    )
 
 
 @st.cache_data(show_spinner=False)
