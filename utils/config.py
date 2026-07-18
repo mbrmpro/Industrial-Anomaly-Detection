@@ -5,7 +5,6 @@ Global Configuration
 =========================================================
 """
 
-from pathlib import Path
 
 # =========================================================
 # PROJECT
@@ -33,9 +32,10 @@ PROJECT_TYPE = "Industrial Computer Vision"
 TASK = "Image Anomaly Detection"
 FRAMEWORK = "TensorFlow + PyTorch"
 
-
+from pathlib import Path
+APP_ROOT = Path(__file__).resolve().parent.parent
 # =========================================================
-# LOCAL MACHINE LEARNING PROJECT
+# 
 # =========================================================
 
 ML_PROJECT = Path(
@@ -43,22 +43,26 @@ ML_PROJECT = Path(
 )
 
 LOCAL_DATASET_PATH = ML_PROJECT / "Dataset_preprocessed"
-MODELS_PATH = ML_PROJECT / "Models"
-RESULTS_PATH = ML_PROJECT / "Results"
 
-# Compatibility aliases
-DATASET_PATH = LOCAL_DATASET_PATH
-DATASET_ROOT = LOCAL_DATASET_PATH
+CLOUD_DATASET_PATH = APP_ROOT / "assets" / "dataset"
 
+if CLOUD_DATASET_PATH.is_dir():
+    DATASET_ROOT = CLOUD_DATASET_PATH
+elif LOCAL_DATASET_PATH.is_dir():
+    DATASET_ROOT = LOCAL_DATASET_PATH
+else:
+    # Stable fallback for slim deployment
+    DATASET_ROOT = CLOUD_DATASET_PATH
 
-# =========================================================
-# STREAMLIT APPLICATION
-# =========================================================
+DATASET_PATH = DATASET_ROOT
 
-APP_ROOT = Path(__file__).resolve().parent.parent
 
 ASSETS_PATH = APP_ROOT / "assets"
 EDA_ASSETS_PATH = ASSETS_PATH / "eda"
+
+MODELS_PATH = APP_ROOT / "Models"
+RESULTS_PATH = APP_ROOT / "Results"
+
 
 DATASET_SUMMARY_PATH = EDA_ASSETS_PATH / "dataset_summary.csv"
 # Backward compatibility
