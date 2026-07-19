@@ -20,7 +20,7 @@ env/
 .huggingface/
 *.log
 
-# MVTec datasets
+# MVTec datasetscls
 Dataset/
 Dataset_preprocessed/
 Dataset_augmented/

@@ -8,7 +8,7 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
-from utils.config import DATASET_ROOT
+from utils.config import DATASET_ROOT, DATASET_SAMPLES_PATH
 from utils.data_loader import load_dataset_statistics
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
@@ -156,21 +156,55 @@ def count_images(category: str) -> dict[str, int]:
 @st.cache_data(show_spinner=False)
 def get_train_images(category: str) -> list[Path]:
     category_name = _safe_name(category, "Category")
-    return _image_paths(DATASET_ROOT / category_name / "train" / "good")
 
+    local_path = (
+        DATASET_ROOT
+        / category_name
+        / "train"
+        / "good"
+    )
+
+    local_images = _image_paths(local_path)
+    if local_images:
+        return local_images
+
+    sample_path = (
+        DATASET_SAMPLES_PATH
+        / category_name
+        / "train"
+        / "good"
+    )
+
+    return _image_paths(sample_path)
 
 @st.cache_data(show_spinner=False)
 def get_test_defects(category: str) -> list[str]:
-    """Return test classes, with 'good' first when present."""
     category_name = _safe_name(category, "Category")
-    test_root = DATASET_ROOT / category_name / "test"
-    if not test_root.is_dir():
-        return []
-    classes = sorted(path.name for path in test_root.iterdir() if path.is_dir())
-    if "good" in classes:
-        return ["good"] + [name for name in classes if name != "good"]
-    return classes
 
+    candidate_roots = [
+        DATASET_ROOT / category_name / "test",
+        DATASET_SAMPLES_PATH / category_name / "test",
+    ]
+
+    for test_root in candidate_roots:
+        if not test_root.is_dir():
+            continue
+
+        classes = sorted(
+            path.name
+            for path in test_root.iterdir()
+            if path.is_dir()
+        )
+
+        if classes:
+            if "good" in classes:
+                return ["good"] + [
+                    name for name in classes
+                    if name != "good"
+                ]
+            return classes
+
+    return []
 
 @st.cache_data(show_spinner=False)
 def get_defect_types(category: str) -> list[str]:
@@ -183,11 +217,24 @@ def get_defect_type_names(category: str) -> list[str]:
 
 
 @st.cache_data(show_spinner=False)
-def get_test_images(category: str, defect: str) -> list[Path]:
+def get_test_images(
+    category: str,
+    defect: str,
+) -> list[Path]:
     category_name = _safe_name(category, "Category")
     class_name = _safe_name(defect, "Class")
-    return _image_paths(DATASET_ROOT / category_name / "test" / class_name)
 
+    candidate_paths = [
+        DATASET_ROOT / category_name / "test" / class_name,
+        DATASET_SAMPLES_PATH / category_name / "test" / class_name,
+    ]
+
+    for path in candidate_paths:
+        images = _image_paths(path)
+        if images:
+            return images
+
+    return []
 
 @st.cache_data(show_spinner=False)
 def get_test_good_images(category: str) -> list[Path]:
@@ -200,15 +247,34 @@ def get_test_defect_images(category: str, defect_type: str) -> list[Path]:
 
 
 @st.cache_data(show_spinner=False)
-def get_ground_truth_images(category: str, defect: str) -> list[Path]:
+def get_ground_truth_images(
+    category: str,
+    defect: str,
+) -> list[Path]:
     category_name = _safe_name(category, "Category")
     class_name = _safe_name(defect, "Class")
+
     if class_name == "good":
         return []
-    return _image_paths(
-        DATASET_ROOT / category_name / "ground_truth" / class_name
-    )
 
+    candidate_paths = [
+        DATASET_ROOT
+        / category_name
+        / "ground_truth"
+        / class_name,
+
+        DATASET_SAMPLES_PATH
+        / category_name
+        / "ground_truth"
+        / class_name,
+    ]
+
+    for path in candidate_paths:
+        images = _image_paths(path)
+        if images:
+            return images
+
+    return []
 
 @st.cache_data(show_spinner=False)
 def get_ground_truth_masks(category: str, defect_type: str) -> list[Path]:
